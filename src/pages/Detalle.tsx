@@ -1,12 +1,17 @@
 import { useEffect, useState } from 'react'
 import { Link, useParams } from 'react-router'
+
 import TarjetaPersonaje from '../components/TarjetaPersonaje'
+import { obtenerPersonajes } from '../services/personajes'
+
 import type { Personaje } from '../types/Personaje'
 
 export default function Detalle() {
   const { id } = useParams<{ id: string }>()
 
-  const [personaje, setPersonaje] = useState<Personaje | null>(null)
+  const [personaje, setPersonaje] =
+    useState<Personaje | null>(null)
+
   const [cargando, setCargando] = useState(true)
   const [error, setError] = useState('')
   const [intento, setIntento] = useState(0)
@@ -24,24 +29,13 @@ export default function Detalle() {
           throw new Error('No se indicó un personaje.')
         }
 
-        const respuesta = await fetch(
-          `https://hp-api.onrender.com/api/character/${encodeURIComponent(id)}`,
-          {
-            signal: controlador.signal,
-          },
+        const datos = await obtenerPersonajes(
+          controlador.signal,
         )
 
-        if (!respuesta.ok) {
-          throw new Error('No se pudo consultar el personaje.')
-        }
-
-        const datos: Personaje[] = await respuesta.json()
-
-        if (!Array.isArray(datos)) {
-          throw new Error('La respuesta no tiene el formato esperado.')
-        }
-
-        const encontrado = datos[0]
+        const encontrado = datos.find(
+          (item) => item.id === id,
+        )
 
         if (!encontrado) {
           throw new Error('No encontramos este personaje.')
@@ -90,7 +84,9 @@ export default function Detalle() {
 
         <button
           type="button"
-          onClick={() => setIntento((valor) => valor + 1)}
+          onClick={() =>
+            setIntento((valor) => valor + 1)
+          }
           className="mt-5 mr-4 rounded-lg bg-amber-400 px-4 py-2 font-semibold text-slate-950"
         >
           Reintentar
@@ -131,32 +127,18 @@ export default function Detalle() {
           </h2>
 
           <div className="mt-5 space-y-3 text-slate-300">
-            <p>Casa: {personaje.house || 'No especificada'}</p>
-
             <p>
-              Especie: {personaje.species || 'No especificada'}
+              Casa: {personaje.house || 'No especificada'}
             </p>
 
             <p>
-              Actor o actriz: {personaje.actor || 'No especificado'}
+              Actor o actriz:{' '}
+              {personaje.actor || 'No especificado'}
             </p>
 
             <p>
               Fecha de nacimiento:{' '}
               {personaje.dateOfBirth || 'No especificada'}
-            </p>
-
-            <p>
-              Patronus: {personaje.patronus || 'No especificado'}
-            </p>
-
-            <p>
-              Estado:{' '}
-              {personaje.alive === true
-                ? 'Vivo/a'
-                : personaje.alive === false
-                  ? 'Fallecido/a'
-                  : 'No especificado'}
             </p>
           </div>
         </section>

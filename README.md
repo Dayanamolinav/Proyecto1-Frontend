@@ -50,4 +50,4 @@ El diálogo para quitar favoritos incluye un ejemplo de patrón oscuro con fines
 
 ## API utilizada
 
-[HP-API](https://hp-api.onrender.com/)
+[PotterAPI](https://potterapi-fedeperin.vercel.app/)

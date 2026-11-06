@@ -1,6 +1,8 @@
 import { useState } from 'react'
 import { Link } from 'react-router'
+
 import BotonFavorito from './BotonFavorito'
+
 import type { Personaje } from '../types/Personaje'
 
 interface TarjetaPersonajeProps {
@@ -40,13 +42,14 @@ export default function TarjetaPersonaje({
         </p>
 
         <p className="mt-1 text-sm text-slate-300">
-          Especie: {personaje.species || 'No especificada'}
+          Actor o actriz:{' '}
+          {personaje.actor || 'No especificado'}
         </p>
 
         <div className="mt-5 flex flex-wrap gap-2">
           {mostrarDetalle && (
             <Link
-              to={`/explorar/${personaje.id}`}
+              to={`/explorar/${encodeURIComponent(personaje.id)}`}
               className="rounded-lg bg-amber-400 px-4 py-2 text-sm font-semibold text-slate-950 hover:bg-amber-300"
             >
               Ver detalle

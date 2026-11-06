@@ -1,5 +1,6 @@
 import { create } from 'zustand'
 import { persist } from 'zustand/middleware'
+
 import type { Personaje } from '../types/Personaje'
 
 interface EstadoFavoritos {
@@ -24,7 +25,7 @@ export const useFavoritos = create<EstadoFavoritos>()(
         })),
     }),
     {
-      name: 'favoritos-harry-potter',
+      name: 'favoritos-harry-potter-potterapi',
     },
   ),
 )

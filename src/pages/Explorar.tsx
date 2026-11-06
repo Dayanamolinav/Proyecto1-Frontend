@@ -1,11 +1,15 @@
 import { useEffect, useState } from 'react'
+
 import TarjetaPersonaje from '../components/TarjetaPersonaje'
+import { obtenerPersonajes } from '../services/personajes'
+
 import type { Personaje } from '../types/Personaje'
 
 export default function Explorar() {
   const [personajes, setPersonajes] = useState<Personaje[]>([])
   const [cargando, setCargando] = useState(true)
   const [error, setError] = useState('')
+
   const [busqueda, setBusqueda] = useState('')
   const [casa, setCasa] = useState('')
   const [intento, setIntento] = useState(0)
@@ -18,28 +22,15 @@ export default function Explorar() {
       setError('')
 
       try {
-        const respuesta = await fetch(
-          'https://hp-api.onrender.com/api/characters',
-          {
-            signal: controlador.signal,
-          },
-        )
+        const datos = await obtenerPersonajes(controlador.signal)
 
-        if (!respuesta.ok) {
-          throw new Error('Error en la respuesta')
+        if (!controlador.signal.aborted) {
+          setPersonajes(datos)
         }
-
-        const datos: Personaje[] = await respuesta.json()
-
-        if (!Array.isArray(datos)) {
-          throw new Error('Respuesta inesperada')
-        }
-
-        setPersonajes(datos)
       } catch {
         if (!controlador.signal.aborted) {
           setError(
-            'No pudimos cargar los personajes. Comprueba tu conexión e inténtalo de nuevo.',
+            'No pudimos cargar los personajes. Revisa tu conexión o inténtalo más tarde.',
           )
         }
       } finally {
@@ -62,12 +53,21 @@ export default function Explorar() {
     ),
   ).sort()
 
-  const filtrados = personajes.filter((personaje) => {
-    const coincideNombre = personaje.name
-      .toLowerCase()
-      .includes(busqueda.trim().toLowerCase())
+  const palabras = busqueda
+    .trim()
+    .toLowerCase()
+    .split(/\s+/)
+    .filter(Boolean)
 
-    const coincideCasa = casa === '' || personaje.house === casa
+  const filtrados = personajes.filter((personaje) => {
+    const nombre = personaje.name.toLowerCase()
+
+    const coincideNombre = palabras.every((palabra) =>
+      nombre.includes(palabra),
+    )
+
+    const coincideCasa =
+      casa === '' || personaje.house === casa
 
     return coincideNombre && coincideCasa
   })
@@ -95,7 +95,9 @@ export default function Explorar() {
             id="busqueda"
             type="search"
             value={busqueda}
-            onChange={(evento) => setBusqueda(evento.target.value)}
+            onChange={(evento) =>
+              setBusqueda(evento.target.value)
+            }
             placeholder="Ejemplo: Harry Potter"
             className="w-full rounded-lg border border-slate-600 bg-slate-800 px-4 py-3 text-white"
           />
@@ -112,13 +114,18 @@ export default function Explorar() {
           <select
             id="casa"
             value={casa}
-            onChange={(evento) => setCasa(evento.target.value)}
+            onChange={(evento) =>
+              setCasa(evento.target.value)
+            }
             className="w-full rounded-lg border border-slate-600 bg-slate-800 px-4 py-3 text-white"
           >
             <option value="">Todas las casas</option>
 
             {casas.map((nombreCasa) => (
-              <option key={nombreCasa} value={nombreCasa}>
+              <option
+                key={nombreCasa}
+                value={nombreCasa}
+              >
                 {nombreCasa}
               </option>
             ))}
@@ -127,7 +134,10 @@ export default function Explorar() {
       </div>
 
       {cargando && (
-        <p role="status" className="mt-8 text-slate-300">
+        <p
+          role="status"
+          className="mt-8 text-slate-300"
+        >
           Cargando personajes...
         </p>
       )}
@@ -141,7 +151,9 @@ export default function Explorar() {
 
           <button
             type="button"
-            onClick={() => setIntento((valor) => valor + 1)}
+            onClick={() =>
+              setIntento((valor) => valor + 1)
+            }
             className="mt-4 rounded-lg bg-red-500 px-4 py-2 font-semibold text-white hover:bg-red-400"
           >
             Reintentar
@@ -155,7 +167,8 @@ export default function Explorar() {
             aria-live="polite"
             className="mt-8 text-sm text-slate-300"
           >
-            Mostrando {filtrados.length} de {personajes.length} personajes
+            Mostrando {filtrados.length} de{' '}
+            {personajes.length} personajes
           </p>
 
           {filtrados.length === 0 ? (
