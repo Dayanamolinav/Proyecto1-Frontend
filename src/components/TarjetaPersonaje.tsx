@@ -14,7 +14,8 @@ export default function TarjetaPersonaje({
   personaje,
   mostrarDetalle = true,
 }: TarjetaPersonajeProps) {
-  const [imagenFallida, setImagenFallida] = useState(false)
+  const [imagenFallida, setImagenFallida] =
+    useState(false)
 
   return (
     <article className="overflow-hidden rounded-2xl border border-slate-700 bg-slate-800 shadow-lg">
@@ -49,7 +50,11 @@ export default function TarjetaPersonaje({
         <div className="mt-5 flex flex-wrap gap-2">
           {mostrarDetalle && (
             <Link
-              to={`/explorar/${encodeURIComponent(personaje.id)}`}
+              to={
+                typeof personaje.apiIndex === 'number'
+                  ? `/explorar/${personaje.apiIndex}?nombre=${encodeURIComponent(personaje.name)}`
+                  : `/explorar/${encodeURIComponent(personaje.id)}`
+              }
               className="rounded-lg bg-amber-400 px-4 py-2 text-sm font-semibold text-slate-950 hover:bg-amber-300"
             >
               Ver detalle

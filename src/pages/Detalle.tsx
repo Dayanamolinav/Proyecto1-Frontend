@@ -1,13 +1,21 @@
 import { useEffect, useState } from 'react'
-import { Link, useParams } from 'react-router'
+
+import {
+  Link,
+  useParams,
+  useSearchParams,
+} from 'react-router'
 
 import TarjetaPersonaje from '../components/TarjetaPersonaje'
-import { obtenerPersonajes } from '../services/personajes'
+import { obtenerPersonajePorId } from '../services/personajes'
 
 import type { Personaje } from '../types/Personaje'
 
 export default function Detalle() {
   const { id } = useParams<{ id: string }>()
+
+  const [parametros] = useSearchParams()
+  const nombreEsperado = parametros.get('nombre')
 
   const [personaje, setPersonaje] =
     useState<Personaje | null>(null)
@@ -26,19 +34,21 @@ export default function Detalle() {
 
       try {
         if (!id) {
-          throw new Error('No se indicó un personaje.')
+          throw new Error(
+            'No se indicó un personaje.',
+          )
         }
 
-        const datos = await obtenerPersonajes(
+        const encontrado = await obtenerPersonajePorId(
+          id,
+          nombreEsperado,
           controlador.signal,
         )
 
-        const encontrado = datos.find(
-          (item) => item.id === id,
-        )
-
         if (!encontrado) {
-          throw new Error('No encontramos este personaje.')
+          throw new Error(
+            'No encontramos este personaje.',
+          )
         }
 
         if (!controlador.signal.aborted) {
@@ -62,7 +72,7 @@ export default function Detalle() {
     cargarDetalle()
 
     return () => controlador.abort()
-  }, [id, intento])
+  }, [id, nombreEsperado, intento])
 
   if (cargando) {
     return (
@@ -78,7 +88,10 @@ export default function Detalle() {
   if (error || !personaje) {
     return (
       <main className="mx-auto max-w-6xl px-6 py-12">
-        <p role="alert" className="text-red-300">
+        <p
+          role="alert"
+          className="text-red-300"
+        >
           {error || 'No se encontró el personaje.'}
         </p>
 
@@ -128,7 +141,8 @@ export default function Detalle() {
 
           <div className="mt-5 space-y-3 text-slate-300">
             <p>
-              Casa: {personaje.house || 'No especificada'}
+              Casa:{' '}
+              {personaje.house || 'No especificada'}
             </p>
 
             <p>

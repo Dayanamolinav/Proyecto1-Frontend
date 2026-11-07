@@ -1,5 +1,6 @@
 export interface Personaje {
   id: string
+  apiIndex?: number
   name: string
   house: string
   species: string
